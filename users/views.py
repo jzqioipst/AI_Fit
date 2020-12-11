@@ -52,3 +52,4 @@ def signup_view(request):
         form = SignupForm()
 
     return render(request, "users/signup.html", {'form': form})
+    

@@ -60,7 +60,12 @@
                     ready = true;
                 });
             })
-            .catch(e => console.error(e))
+            .catch(e => {
+                console.error(e)
+                clearInterval(myTimer);
+                location.href = "{% url 'users:login' %}";
+                return;
+            });
         });
     }
 </script>

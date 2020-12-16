@@ -59,12 +59,7 @@
                     document.getElementById('results').innerHTML = '<img src="' + e + '"/>';
                     ready = true;
                 })
-                .catch(e => {
-                    console.error(e)
-                    clearInterval(myTimer);
-                    location.href = "{% url 'users:login' %}";
-                    return;
-                });
+                .catch(e => console.error(e));
             })
             .catch(e => console.error(e));
         });

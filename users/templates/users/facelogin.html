@@ -43,6 +43,10 @@
         Webcam.snap(function (data) {
             fetch('/auth/facelogin', {
                 method: 'POST',
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Type": "text/plain"
+                },
                 body: data
             })
             .then(e => {

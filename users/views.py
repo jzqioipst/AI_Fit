@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 
-from .forms import LoginForm, SignupForm
+from .forms import LoginForm, SignupForm, EditForm
 from .models import User, DailyRecord
 
 import base64
 from django.core.files.base import ContentFile
+from django.contrib.auth.hashers import check_password
+# 장고에서 제공해주는 비밀번호 검증 메소드
 
 from datetime import datetime
 
@@ -75,24 +77,58 @@ def signup_view(request):
 
         if form.is_valid():
             email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
             nick_name = form.cleaned_data['nick_name']
             date_of_birth = form.cleaned_data['date_of_birth']
 
             data = request.POST['profile_img']
             
-            img_fmt, img_str = data.split(';base64,')
-            ext = img_fmt.split('/')[-1]
-            profile_img = ContentFile(base64.b64decode(img_str), name='profile.' + ext)
+            if data != '':
+                img_fmt, img_str = data.split(';base64,')
+                ext = img_fmt.split('/')[-1]
+                profile_img = ContentFile(base64.b64decode(img_str), name='profile.' + ext)
 
-            user = User.objects.create_user(email, password, nick_name, date_of_birth, profile_img)
-
-            return redirect("users:login")
+            if password1 == password2:
+                if data != '':
+                    user = User.objects.create_user(email, password1, nick_name, date_of_birth, profile_img, representation)
+                else:
+                    user = User.objects.create_user(email, password1, nick_name, date_of_birth)
+                return redirect("users:login")
 
     else:
         form = SignupForm()
 
     return render(request, "users/signup.html", {'form': form})
+
+def user_edit(request):
+    context= {}
+    if request.method == "POST":
+        form = EditForm(request.POST)
+        if form.is_valid():
+            current_password = form.cleaned_data['current_password']
+            user = request.user
+            if check_password(current_password,user.password):
+                password1 = form.cleaned_data['password1']
+                password2 = form.cleaned_data['password2']
+                if password1 == password2:
+                    user.set_password(password2)
+                    user.save()
+                    login(request,user)
+                    return redirect("users:login")
+                else:
+                    context['form'] = form
+                    context.update({'error':"새로운 비밀번호를 다시 확인해주세요."})
+                    # context['error'] = '새로운 비밀번호를 다시 확인해주세요.'
+            else:
+                context['form'] = form
+                context.update({'error':"현재 비밀번호가 일치하지 않습니다."})
+
+        return render(request, "users/useredit.html", context )
+    else:
+        context['form'] = EditForm()
+
+    return render(request, "users/useredit.html", context)
 
 
 def sports_view(request, what_kind):

@@ -1,65 +1,95 @@
-body{
-	background-color: #648192;
-	font: 24px/30px 'Noto Sans CJK KR', Noto Sans KR, sans-serif
+body {
+	font: 24px/30px 'Noto Sans CJK KR', Noto Sans KR, sans-serif;
+	background: url("/static/image/kettle_bell.jpg")no-repeat center;
+	background-size: cover;
+	height: 100vh;
+	z-index: -10;
 }
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:600,400,300);
- .frame {
-	 position: absolute;
-	 top: 50%;
-	 left: 70%;
-	 width: 400px;
-	 height: 400px;
-	 margin-top: -200px;
-	 margin-left: -200px;
-	 border-radius: 2px;
-	 box-shadow: 1px 2px 10px 0px rgba(0, 0, 0, 0.3);
-	 overflow: hidden;
-	 background: #28404e;
-	 background: -moz-linear-gradient(top, #28404e 0%, #1c2e38 100%);
-	 background: -webkit-linear-gradient(top, #28404e 0%, #1c2e38 100%);
-	 background: linear-gradient(to bottom, #28404e 0%, #1c2e38 100%);
-	 filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#28404e', endColorstr='#1c2e38',GradientType=0);
-	 color: #fff;
-	 font-family: 'Open Sans', Helvetica, sans-serif !important;
-	 -webkit-font-smoothing: antialiased !important;
-	 -moz-osx-font-smoothing: grayscale !important;
+
+.top {
+	width: 86%;
+	height: 1%;
+	background-color: var(--blue-color);
+	margin-left: 7%;
+	margin-bottom: 4%;
 }
- .center {
-	 position: absolute;
+
+.title{
+	font-size: 5vh;
+	font-family: Tomorrow, sans-serif;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--blue-color);
+	margin-bottom: 5%;
+}
+
+#canvas {
+	width: 60vmin;
+	border: var(--blue-color);
+	border-spacing: 3vh;
+	border-radius: 3vh;
+}
+
+.frame {
+	margin: 3vh;
+	width: 40vmin;
+	height: 40vmin;
+	border-radius: 2px;
+	box-shadow: 1px 2px 10px 0px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+	background: #28404e;
+	background: -moz-linear-gradient(top, #28404e 0%, #1c2e38 100%);
+	background: -webkit-linear-gradient(top, #28404e 0%, #1c2e38 100%);
+	background: linear-gradient(to bottom, #28404e 0%, #1c2e38 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#28404e', endColorstr='#1c2e38',GradientType=0);
+	color: #fff;
+	font-family: Tomorrow, sans-serif;
+	-webkit-font-smoothing: antialiased !important;
+	-moz-osx-font-smoothing: grayscale !important;
+}
+ 
+.center {
+	 position: relative;
 	 top: 50%;
 	 left: 50%;
 	 transform: translate(-50%, -50%);
 }
- .headline {
+ 
+.headline {
 	 font-weight: 600;
-	 font-size: 24px;
+	 font-size: 2.5vh;
 	 text-transform: uppercase;
 	 text-align: center;
-	 line-height: 22px;
+	 line-height: 2.5vh;
 }
- .headline .small {
+ 
+.headline .small {
 	 font-weight: 300;
-	 font-size: 16px;
+	 font-size: 2vh;
 }
- .circle-big {
+ 
+.circle-big {
 	 position: relative;
 	 width: 114px;
 	 height: 114px;
 	 margin: 30px auto 25px auto;
 }
- .circle-big svg {
+ 
+.circle-big svg {
 	 width: 114px;
 	 height: 114px;
 }
- .circle-big .bg {
+ 
+.circle-big .bg {
 	 fill: none;
 	 stroke-width: 10px;
 	 stroke: #1b2a33;
 }
- .circle-big .progress {
+ 
+.circle-big .progress {
 	 fill: none;
 	 stroke-width: 10px;
-	 stroke: #27e1ae;
+	 stroke: var(--blue-color);
 	 stroke-linecap: round;
 	 stroke-dasharray: 326.56;
 	 stroke-dashoffset: 327;
@@ -67,7 +97,8 @@ body{
 	 transform-origin: 50% 50%;
 	 animation: big 1.5s ease-out;
 }
- .circle-big .text {
+ 
+.circle-big .text {
 	 position: absolute;
 	 width: 100%;
 	 top: 37px;
@@ -76,33 +107,39 @@ body{
 	 font-weight: 400;
 	 line-height: 22px;
 }
- .circle-big .text .small {
+ 
+.circle-big .text .small {
 	 font-size: 14px;
 	 color: #648192;
 }
- .circles-small {
+ 
+.circles-small {
 	 margin: 0 auto;
 	 width: 400px;
 	 height: 80px;
 	 text-align: center;
 }
- .circle-small {
+ 
+.circle-small {
 	 display: inline-block;
 	 position: relative;
 	 width: 80px;
 	 height: 80px;
 	 margin: 0 20px;
 }
- .circle-small svg {
+ 
+.circle-small svg {
 	 width: 80px;
 	 height: 80px;
 }
- .circle-small .bg {
+ 
+.circle-small .bg {
 	 fill: none;
 	 stroke-width: 6px;
 	 stroke: #1b2a33;
 }
- .circle-small .progress {
+ 
+.circle-small .progress {
 	 fill: none;
 	 stroke-width: 6px;
 	 stroke: #5ce1ec;
@@ -111,15 +148,18 @@ body{
 	 transform: rotate(-90deg);
 	 transform-origin: 50% 50%;
 }
- .circle-small .progress.one {
+ 
+.circle-small .progress.one {
 	 stroke-dashoffset: 80;
 	 animation: one 1.5s ease-out;
 }
- .circle-small .progress.two {
+ 
+.circle-small .progress.two {
 	 stroke-dashoffset: 140;
 	 animation: two 1.5s ease-out;
 }
- .circle-small .text {
+ 
+.circle-small .text {
 	 position: absolute;
 	 width: 100%;
 	 top: 26px;
@@ -128,7 +168,8 @@ body{
 	 font-weight: 400;
 	 line-height: 16px;
 }
- .circle-small .text .small {
+ 
+.circle-small .text .small {
 	 font-size: 12px;
 	 color: #648192;
 }

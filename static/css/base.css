@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Barlow|Tomorrow:400,700&display=swap");
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:600,400,300);
+
+/* Cyberpunk */
+:root {
+    --yellow-color: #fcee09; 
+    --red-color: #ff003c;
+    --black-color: #050a0e;
+    --darkgray-color: #424242;
+    --blue-color: #00f0ff;
+    --royalblue-color: #166cea;
+}
+
+@media (orientation: portrait) {
+    /* 세로 모드일 때 적용할 CSS */
+    .body{
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+    }
+
+    .section{
+        height: 50%;
+    }
+}
+
+@media (orientation: landscape) {
+    /* 가로 모드일 때 적용할 CSS */
+    .body{
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .section {
+        width: 50%;
+    }
+}
+
+.section{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+}

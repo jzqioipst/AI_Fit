@@ -14,6 +14,23 @@ from datetime import datetime
 
 from . import auth_code
 
+# model 관련 import
+import tensorflow as tf
+import numpy as np
+from numpy import load
+from numpy import asarray
+from mtcnn.mtcnn import MTCNN
+import time
+import csv
+import re
+from os import listdir
+import os
+
+from . import image_embedding # 얼굴을 128 벡터로
+from . import detect_face_from_one_image # 사진에서 얼굴 추출
+from . import anis_koubaa_lib
+from . import face_recognition
+# 여기까지
 
 # Create your views here.
 # 사용자가 F5를 눌러 새로고침을 해줄 수도 있을 텐데 계속 csrf때문에 페이지가 깨지고 뒤로 가더라도 그래프가 보이지 않아 다시 로그인을 해야하는 이슈가 있었다.
@@ -28,7 +45,6 @@ def login_view(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             user = authenticate(email=email, password=password)
-
             if user is not None:
                 login(request, user)
                 latest_records = DailyRecord.objects.filter(user=user.id).order_by('-workout_date')[:30]
@@ -48,23 +64,61 @@ def login_view(request):
 @csrf_exempt
 def face_login_view(request):
     if request.method == 'POST':
-        if request.session['test_count'] == 250:
-            user = authenticate(email='blue', password='blue')
-            if user is not None:
-                login(request, user)
-                del request.session['test_count']
-                return HttpResponse("OK_Face")
+        m = User.objects.exclude(representation = None).values()
+        n = len(User.objects.exclude(representation = None).values())
+        face_embeddings = []
+        labels = []
+        temp = None
+        temp2 = []
+        # img 얼굴 확인 디텍터
+        detector = MTCNN()
+        # face모델 불러이기 시간소요됨(4s)
+        model = tf.keras.models.load_model('static/model/face/facenet_keras.h5')
+        for i in m:
+            # string형태로 저장된 값 [] 및 공백 제거
+            temp = ','.join(i['representation'].split())[2:-1]
+            # print(temp)
+            # 쉽표 기준으로 나누어서 리스트화
+            if temp[-1] == ',':
+                temp2 = temp[:-1].split(',')
+            else:
+                temp2 = temp.split(',')
+            # string이기에 float형태로 변경
+            temp2 = list(map(float, temp2))
+            # temp2 = np.reshape(temp2,(1,128))
 
-            form = LoginForm()
-            return render(request, "users/login.html", {'form': form})
+            face_embeddings.append(temp2)
+            # print(temp2)
+            # print(face_embeddings)
+            labels.append(i['id'])
+            # print(labels)
+            classifier = face_recognition.classification(face_embeddings, labels, n)
+        # representation 등록되어있는 회원 분류기 학습 (매번 로그인시마다 진행, 짧음 경과시간)
+        # pk = User.objects.get(email= user.email).pk
 
-        request.session['test_count'] += 1
-        print(request.session['test_count'])
+        data = str(request.body)
+        if data != '':
+            img_fmt, img_str = data.split(';base64,')
+            ext = img_fmt.split('/')[-1]
 
-        # print(request.body.decode('utf-8'))
+            profile_img = ContentFile(base64.b64decode(img_str[:-1]), name='profile.' + ext)
+            e_img = detect_face_from_one_image.extract_face(detector, profile_img)
+            face_to_predict_embedding = image_embedding.get_embedding(model, e_img)
+            o_labels, class_probability = face_recognition.predict_label(face_to_predict_embedding, face_embeddings, labels, classifier)
+
+            print(class_probability)
+
+            if (class_probability >= 55):
+                t_email = User.objects.get(id=o_labels).email
+                user = User.objects.get(email=t_email)
+                if user is not None:
+                    login(request, user)
+                    return HttpResponse("OK_Face")
+
+                form = LoginForm()
+                return render(request, "users/login.html", {'form': form})
+  
         return HttpResponse(request.body)
-
-    request.session['test_count'] = 0
     return render(request, "users/facelogin.html")
 
 
@@ -149,12 +203,16 @@ def signup_view(request):
                 img_fmt, img_str = data.split(';base64,')
                 ext = img_fmt.split('/')[-1]
                 profile_img = ContentFile(base64.b64decode(img_str), name='profile.' + ext)
+                # face모델 불러이기 시간소요됨(4s)
+                model = tf.keras.models.load_model('static/model/face/facenet_keras.h5')
+                detector = MTCNN()
+                e_img = detect_face_from_one_image.extract_face(detector, profile_img)
+                representation = ' '.join(map(str,list(image_embedding.get_embedding(model, e_img))))
 
             if password1 == password2:
                 if data != '':
-                    user = User.objects.create_user(email, password1, nick_name, date_of_birth, profile_img, 
-                    #representation
-                    )
+                    user = User.objects.create_user(email, password1, nick_name, date_of_birth, profile_img, representation)
+                    
                 else:
                     user = User.objects.create_user(email, password1, nick_name, date_of_birth)
                 return redirect("users:login")
@@ -171,11 +229,28 @@ def user_edit(request):
         if form.is_valid():
             current_password = form.cleaned_data['current_password']
             user = request.user
+            data = request.POST['profile_img']
+
+            if data != '':
+                img_fmt, img_str = data.split(';base64,')
+                ext = img_fmt.split('/')[-1]
+                profile_img = ContentFile(base64.b64decode(img_str), name='profile.' + ext)
+                # face모델 불러이기 시간소요됨(4s)
+                model = tf.keras.models.load_model('static/model/face/facenet_keras.h5')
+                detector = MTCNN()
+                e_img = detect_face_from_one_image.extract_face(detector, profile_img)
+                representation = ' '.join(map(str,list(image_embedding.get_embedding(model, e_img))))
+                
             if check_password(current_password,user.password):
                 password1 = form.cleaned_data['password1']
                 password2 = form.cleaned_data['password2']
                 if password1 == password2:
                     user.set_password(password2)
+
+                    if data != '':
+                        user.profile_img = profile_img
+                        user.representation = representation
+
                     user.save()
                     login(request,user)
                     return redirect("users:login")
